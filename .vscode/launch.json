@@ -9,7 +9,7 @@
       "stopAtEntry": false,
       "externalConsole": false,
       "cwd": "/home/jonathanweaver/Documents/Projects/MultiProcessing/MultiProcessing",
-      "program": "/home/jonathanweaver/Documents/Projects/MultiProcessing/MultiProcessing/build/Debug/outDebug",
+      "program": "/home/jonathanweaver/Documents/Projects/MultiProcessing/MultiProcessing/build/Release/outRelease",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
