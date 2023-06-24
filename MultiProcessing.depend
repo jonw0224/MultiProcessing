@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1677036187 source:/home/jonathanweaver/Documents/Projects/MultiProcessing/MultiProcessing/main.c
+	<pthread.h>
+	<stdio.h>
+	<stdlib.h>
+
