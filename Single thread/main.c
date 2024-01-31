@@ -80,6 +80,7 @@ int getPrime(long n)
  *****************************************************************************/
 int main()
 {   
+    // Comment
     // First prime number to test is 3
     testPrime = 3;
     for(long i = testPrime*3; i < 84; i = i + testPrime*2)
