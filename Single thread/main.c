@@ -29,42 +29,68 @@
  * ==============================================================================
  */
  
-#include <pthread.h>
+#include <stdint.h>
+#define HIGHEST 1000
+long testPrime;
+int primeList[HIGHEST];
+
 #include <stdio.h>
 #include <stdlib.h>
 
-int cnt;
-void* threadFunct(void* arg)
+/******************************************************************************
+ * Calculates the offset of the number in the prime array
+ * n: the number in the array
+ * i: returns the byte offset
+ * b: returns the bit offset
+ *****************************************************************************/
+void offsets(long n, long* i, int* b)
 {
-    int i, a;
-    printf("Tread: %lu\n",pthread_self());
-    cnt = cnt + 1;
-    a = 0;
-    for(i = 0; i< 100000000; i++)
-    {
-        a++;
-    }
-    pthread_exit(NULL);
-
+    *b = (n - 3)/2 & 31;
+    *i = (n - 3)/2 / 32;
 }
 
-int main()
+/******************************************************************************
+ * Calculates the offset of the number in the prime array
+ * n: the number in the array
+ * i: returns the byte offset
+ * b: returns the bit offset
+ *****************************************************************************/
+void setPrime(long n)
 {
-    int i;
-    pthread_t ptid[2000];
+    long i = 0;
+    int b = 0;
+    offsets(n, &i, &b);
+    primeList[i] = primeList[i] | (1 << b);
+}
 
-    printf("Before threads!\n");
-    cnt = 0;
-    for(i = 0; i< 2000; i++)
+/******************************************************************************
+ *****************************************************************************/
+int getPrime(long n)
+{
+    long i = 0;
+    int b = 0;
+    offsets(n, &i, &b);
+    if((primeList[i] & (1 << b)) == 0)
+      return 1;
+    return 0;
+}
+
+/******************************************************************************
+ * The main program
+ *****************************************************************************/
+int main()
+{   
+    // First prime number to test is 3
+    testPrime = 3;
+    for(long i = testPrime*3; i < 84; i = i + testPrime*2)
     {
-        //threadFunct(NULL);
-        pthread_create(&ptid[i], NULL, &threadFunct, NULL);
+      setPrime(i);
     }
-    for(i = 0; i< 2000; i++)
+
+    for(long i = 3; i < 84; i = i+2)
     {
-        pthread_join(ptid[i], NULL);
+        if(getPrime(i) == 1) 
+            printf("%ld\n", i);
     }
-    printf("Cnt: %d\n", cnt);
-    printf("Goodbye\n");
     return 0;
 }

@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/mnt/share/jww/Projects/MultiProcessing/MultiProcessing",
-      "program": "/mnt/share/jww/Projects/MultiProcessing/MultiProcessing/build/Debug/outDebug",
+      "cwd": "/mnt/share/jww/Projects/MultiProcessing/MultiProcessing/Single thread",
+      "program": "/mnt/share/jww/Projects/MultiProcessing/MultiProcessing/Single thread/build/Release/outRelease",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
