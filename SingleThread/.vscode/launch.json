@@ -7,9 +7,9 @@
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "externalConsole": false,
-      "cwd": "/mnt/share/jww/Projects/MultiProcessing/SingleThread",
-      "program": "/mnt/share/jww/Projects/MultiProcessing/SingleThread/build/Release/outRelease",
+      "externalConsole": true,
+      "cwd": "z:/jww/Projects/MultiProcessing/SingleThread",
+      "program": "z:/jww/Projects/MultiProcessing/SingleThread/build/Release/outRelease",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
