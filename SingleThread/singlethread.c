@@ -135,7 +135,7 @@ int main()
     gettimeofday(&end, NULL);
 
     // Calculate and print the elapsed time
-    float seconds = (end.tv_sec - start.tv_sec) +
+    float seconds = ((float) (end.tv_sec - start.tv_sec)) +
         ((float) (end.tv_usec - start.tv_usec))/1000000;
     printf("The elapsed time is %f seconds\n", seconds);
 
@@ -151,7 +151,7 @@ int main()
     gettimeofday(&endB, NULL);
 
     // Calculate and print the elapsed time
-    seconds = (endB.tv_sec - end.tv_sec) +
+    seconds = ((float) (endB.tv_sec - end.tv_sec)) +
         ((float) (endB.tv_usec - end.tv_usec))/1000000;
     printf("Time to write file is %f seconds\n", seconds);
 
