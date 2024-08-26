@@ -43,16 +43,17 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #define HIGHEST 1000000
 #define HIGHINDEX (((HIGHEST - 3) / 2 / sizeof(unsigned long) / 8) + 1)
 #define OUTPUTFILE "primelist.txt"
 
 unsigned long primeList[HIGHINDEX];
+unsigned long *testPrime;
+int noOfThreads;
 
 struct pthreadStruct {
-    unsigned long prime;
-    int done;
+    unsigned long startPrime;
+    int index;
 };
 
 /******************************************************************************
@@ -106,22 +107,37 @@ int getPrime(unsigned long n)
  * prime: the prime number to mark multiples of as not prime
  * returns: nothing
  *****************************************************************************/
-void* markPrimeMultiples(void* arg)
+void markPrimeMultiples(unsigned long prime, int i)
 {
-    
-    unsigned long prime = ((struct pthreadStruct *) arg)->prime;
-    
-    for(unsigned long i = prime*prime; i < HIGHEST; i = i + prime*2)
+    for(testPrime[i] = prime*prime; testPrime[i] < HIGHEST; testPrime[i] = testPrime[i] + prime*2)
     {
-        // printf("Prime: %lu i: %lu\n", prime,i);
-        setPrime(i);
+        setPrime(testPrime[i]);
     }
-    
-    ((struct pthreadStruct *) arg)->done = 1;
-    // printf("done\n");
-    // Exit the thread
-    pthread_exit(NULL);
+}
 
+void* threadProcess(void* arg)
+{
+    int i = ((struct pthreadStruct *) arg)->index;
+    unsigned long tprime = ((struct pthreadStruct *) arg)->startPrime;
+    // Test prime numbers until we exceed the high limit
+    while(tprime*tprime < HIGHEST)
+    {
+        // Mark all of the multiples of testPrime as not prime
+        markPrimeMultiples(tprime, i);
+        tprime = tprime + 2*((unsigned long) noOfThreads);
+        // Find the next prime number to test
+        while((tprime*tprime < HIGHEST) && getPrime(tprime) == 0)
+        {
+            tprime = tprime + 2*((unsigned long) noOfThreads);
+            // Wait until primes less than seedprime squared have been tested by the existing threads before creating a new thread
+            //for(int j = 0; j < noOfThreads; j++)
+            //{
+            //    while(testPrime[j] < tprime*tprime) {}
+            //}
+
+        }
+    }
+    pthread_exit(NULL);
 }
 
 /******************************************************************************
@@ -134,62 +150,37 @@ int main()
 
     // Save the start time
     gettimeofday(&start, NULL);
+
     long noOfProcessors = sysconf(_SC_NPROCESSORS_CONF);
-    long noOfThreads = noOfProcessors + 1;
+    noOfThreads = (int) noOfProcessors;
     printf("The number of processors is %ld\n", noOfProcessors);
-    
-    int threadCnt = 0;
+    testPrime = malloc ((unsigned long) noOfThreads * sizeof(unsigned long));
+
     pthread_t ptid[noOfThreads];
     struct pthreadStruct threadArg[noOfThreads];
-
-    int curThreadIndex = 0;
-
-    // First prime number to test is 3
-    unsigned long testPrime = 3;
-    // Test prime numbers until we exceed the high limit
-    while(testPrime*testPrime < HIGHEST)
+    
+    // First Prime Number to Test is 3
+    unsigned long seedPrime = 3;
+    // Create new threads up to the noOfThreads
+    for(int i = 0; i < noOfThreads; i++)
     {
-        // Mark all of the multiples of testPrime as not prime
-
-        // printf("Arg: %lu\n", testPrime);
-        threadArg[curThreadIndex].prime = testPrime;
-        threadArg[curThreadIndex].done = 0;
-        
-        pthread_create(&ptid[curThreadIndex], NULL, &markPrimeMultiples, &threadArg[curThreadIndex]);
-        //printf("CurrentThread: %u ThreadCount: %u Thread: %lu\n", curThreadIndex, threadCnt, ptid[curThreadIndex]);
-        threadCnt++;
-        curThreadIndex = threadCnt;
-        int i = 0;
-        while(threadCnt > noOfThreads)
-        {
-        //    printf(" T: %lu %d", ptid[i], threadArg[i].done);
-            if(threadArg[i].done == 1)
-            {
-                curThreadIndex = i;
-                //printf("Current Thread Index: %d", i);
-                // pthread_join(ptid[i], NULL);                    
-                threadCnt--;
-            }
-            i++;
-            if(i > noOfThreads) i = 0;
-            //printf("\n");
-        }
-  
-        testPrime = testPrime + 2;
-        // Find the next prime number to test
-        while((testPrime*testPrime < HIGHEST) && getPrime(testPrime) == 0)
-        {
-            testPrime = testPrime + 2;
-        }
+        // Set up the argument to the new thread. Include thread to test, index to use in testPrime, and step to use in testing
+        threadArg[i].startPrime = seedPrime;
+        threadArg[i].index = i;
+        // Create new thread
+        pthread_create(&ptid[i], NULL, &threadProcess, &threadArg[i]);
+        // Find next prime number to test
+        seedPrime = seedPrime + 2;
+//        while((seedPrime*seedPrime < HIGHEST) && getPrime(seedPrime) == 0)
+//        {
+//            seedPrime = seedPrime + 2;
+//        }
     }
-    //printf("Thread Count: %u\n", threadCnt);
-    for(int i = 0; i < threadCnt; i++)
+    
+    // Merge all of the threads
+    for(int i = 0; i < noOfThreads; i++)
     {
-        //printf("i: %d Thread: %lu Done: %d\n", i, ptid[i], threadArg[i].done);
-        //if(threadArg[i].done == 0)
-        //{
-            pthread_join(ptid[i], NULL);
-        //}
+        pthread_join(ptid[i], NULL);
     }
 
     // Save the end time
