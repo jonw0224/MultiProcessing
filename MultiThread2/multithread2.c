@@ -51,6 +51,9 @@ unsigned long primeList[HIGHINDEX];
 unsigned long *testPrime;
 int noOfThreads;
 
+// lock for the shared variable
+pthread_mutex_t nextbaselock = PTHREAD_MUTEX_INITIALIZER;
+
 struct pthreadStruct {
     unsigned long startPrime;
     int index;
@@ -134,7 +137,6 @@ void* threadProcess(void* arg)
             //{
             //    while(testPrime[j] < tprime*tprime) {}
             //}
-
         }
     }
     pthread_exit(NULL);
